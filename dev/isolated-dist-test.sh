@@ -18,7 +18,7 @@ cd -- "$( dirname -- "${BASH_SOURCE[0]}" )"/..
 temp_dir="$( mktemp --directory )"
 trap 'set +e; popd; rm -rf "$temp_dir"' EXIT
 
-rsync -a tests "$temp_dir" --exclude=__pycache__
+rsync -a tests README.md "$temp_dir" --exclude=__pycache__
 
 pushd "$temp_dir"
 "$python3bin" -m venv .venv

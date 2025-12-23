@@ -1,6 +1,14 @@
 # pylint: disable=missing-module-docstring,missing-class-docstring,missing-function-docstring  # noqa: E501
+import doctest
 import unittest
+from pathlib import Path
 import py_z85 as uut
+
+
+def load_tests(loader, tests, ignore):  # pylint: disable=unused-argument
+    fn = str(Path(__file__).resolve().parent.parent/'README.md')
+    tests.addTests(doctest.DocFileSuite(fn, module_relative=False))
+    return tests
 
 
 class PyZ85Tests(unittest.TestCase):

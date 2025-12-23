@@ -6,6 +6,12 @@ of <https://rfc.zeromq.org/spec/32/> as possible.
 
 `pip install 'py-z85@git+https://github.com/haukex/py-z85.git'`
 
+    >>> from py_z85 import z85enc, z85dec
+    >>> z85enc(bytes.fromhex('864FD26FB559F75B'))
+    b'HelloWorld'
+    >>> z85dec(b'HelloWorld').hex()
+    '864fd26fb559f75b'
+
 
 Legal
 -----
