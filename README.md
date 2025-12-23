@@ -6,7 +6,7 @@ https://rfc.zeromq.org/spec/32/
 Legal
 -----
 
-The file `spec_32.c` is derived from
+The file `py_z85.c` is derived from
 <https://github.com/zeromq/rfc/blob/8416923d/src/spec_32.c>
 and contains the following legal information.
 

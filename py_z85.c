@@ -27,7 +27,7 @@
 //  DEALINGS IN THE SOFTWARE.
 //  --------------------------------------------------------------------------
 
-#include "spec_32.h"
+#include "py_z85.h"
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
