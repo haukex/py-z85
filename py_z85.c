@@ -1,3 +1,5 @@
+// This file is based on https://github.com/zeromq/rfc/blob/8416923d/src/spec_32.c
+
 //  --------------------------------------------------------------------------
 //  Reference implementation for rfc.zeromq.org/spec:32/Z85
 //
@@ -27,7 +29,11 @@
 //  DEALINGS IN THE SOFTWARE.
 //  --------------------------------------------------------------------------
 
-#include "py_z85.h"
+// https://docs.python.org/3.10/extending/index.html
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
@@ -64,20 +70,28 @@ static unsigned char decoder [96] = {
 };
 
 //  --------------------------------------------------------------------------
-//  Encode a byte array as a string
 
-char *Z85_encode (unsigned char *data, size_t size) {
-    //  Accepts only byte arrays bounded to 4 bytes
-    if (size % 4)
+static PyObject *Z85_encode(PyObject *Py_UNUSED(self), PyObject *args) {
+    const unsigned char *data;
+    Py_ssize_t size;
+    // https://docs.python.org/3.10/c-api/arg.html#strings-and-buffers
+    if (!PyArg_ParseTuple(args, "y#", &data, &size))
         return NULL;
 
-    size_t encoded_size = size * 5 / 4;
-    char *encoded = malloc (encoded_size + 1);
-    if (encoded==NULL)
+    if (size % 4) {
+        PyErr_SetString(PyExc_ValueError, "data length must be a multiple of 4");
         return NULL;
+    }
 
-    unsigned int char_nbr = 0;
-    unsigned int byte_nbr = 0;
+    Py_ssize_t encoded_size = size * 5 / 4;
+    char *encoded = (char*) PyMem_Malloc(encoded_size);
+    if (encoded==NULL) {
+        PyErr_SetString(PyExc_MemoryError, "malloc failed");
+        return NULL;
+    }
+
+    Py_ssize_t char_nbr = 0;
+    Py_ssize_t byte_nbr = 0;
     uint32_t value = 0;
     while (byte_nbr < size) {
         //  Accumulate value in base 256 (binary)
@@ -93,29 +107,37 @@ char *Z85_encode (unsigned char *data, size_t size) {
         }
     }
     assert (char_nbr == encoded_size);
-    encoded [char_nbr] = 0;
-    return encoded;
+    // https://docs.python.org/3.10/c-api/bytes.html#c.PyBytes_FromStringAndSize
+    PyObject *rv = PyBytes_FromStringAndSize(encoded, encoded_size);
+    PyMem_Free(encoded);
+    return rv;
 }
 
-
 //  --------------------------------------------------------------------------
-//  Decode an encoded string into a byte array; size of array will be
-//  strlen (string) * 4 / 5.
 
-unsigned char *Z85_decode (char *string) {
-    //  Accepts only strings bounded to 5 bytes
-    if (strlen (string) % 5)
+static PyObject *Z85_decode(PyObject *Py_UNUSED(self), PyObject *args) {
+    const char *string;
+    Py_ssize_t size;
+    // https://docs.python.org/3.10/c-api/arg.html#strings-and-buffers
+    if (!PyArg_ParseTuple(args, "y#", &string, &size))
         return NULL;
 
-    size_t decoded_size = strlen (string) * 4 / 5;
-    unsigned char *decoded = malloc (decoded_size);
-    if (decoded==NULL)
+    if (size % 5) {
+        PyErr_SetString(PyExc_ValueError, "data length must be a multiple of 5");
         return NULL;
+    }
 
-    unsigned int byte_nbr = 0;
-    unsigned int char_nbr = 0;
+    Py_ssize_t decoded_size = size * 4 / 5;
+    char *decoded = (char*) PyMem_Malloc(decoded_size);
+    if (decoded==NULL) {
+        PyErr_SetString(PyExc_MemoryError, "malloc failed");
+        return NULL;
+    }
+
+    Py_ssize_t byte_nbr = 0;
+    Py_ssize_t char_nbr = 0;
     uint32_t value = 0;
-    while (char_nbr < strlen (string)) {
+    while (char_nbr < size) {
         //  Accumulate value in base 85
         value = value * 85 + decoder [(unsigned char) string [char_nbr++] - 32];
         if (char_nbr % 5 == 0) {
@@ -129,5 +151,36 @@ unsigned char *Z85_decode (char *string) {
         }
     }
     assert (byte_nbr == decoded_size);
-    return decoded;
+    // https://docs.python.org/3.10/c-api/bytes.html#c.PyBytes_FromStringAndSize
+    PyObject *rv = PyBytes_FromStringAndSize(decoded, decoded_size);
+    PyMem_Free(decoded);
+    return rv;
 }
+
+static PyMethodDef py_z85_methods[] = {
+    {"z85enc", Z85_encode, METH_VARARGS, "Encode a bytes-like object using Z85. The object's length must be multiple of 4."},
+    {"z85dec", Z85_decode, METH_VARARGS, "Decode a bytes-like object using Z85. The object's length must be multiple of 5."},
+    {NULL, NULL, 0, NULL}  // Sentinel
+};
+
+static struct PyModuleDef_Slot module_slots[] = {
+#if PY_VERSION_HEX >= 0x030D0000
+    {Py_mod_gil, Py_MOD_GIL_USED},
+#endif
+    {0, NULL}  // Sentinel
+};
+
+static struct PyModuleDef py_z85_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "py-z85",
+    .m_size = 0,
+    .m_methods = py_z85_methods,
+    .m_slots = module_slots
+};
+
+PyMODINIT_FUNC
+PyInit_py_z85(void) {
+    return PyModuleDef_Init(&py_z85_module);
+}
+
+/* vim: set ts=4 sw=4 expandtab : */

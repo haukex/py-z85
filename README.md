@@ -1,7 +1,11 @@
 Python Wrapper for Reference Implementation of Z85
 ==================================================
 
-https://rfc.zeromq.org/spec/32/
+This code tries to remain as true to the reference implementation
+of <https://rfc.zeromq.org/spec/32/> as possible.
+
+`pip install 'py-z85@git+https://github.com/haukex/py-z85.git'`
+
 
 Legal
 -----
@@ -10,7 +14,7 @@ The file `py_z85.c` is derived from
 <https://github.com/zeromq/rfc/blob/8416923d/src/spec_32.c>
 and contains the following legal information.
 
-The code has since been modified by Hauke Daempfling (haukex@zero-g.net).
+The code has since been modified by Hauke Daempfling (haukex@zero-g.net), Dec 2025.
 
 Copyright (c) 2010-2013 iMatix Corporation and Contributors
 
