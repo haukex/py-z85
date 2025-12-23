@@ -12,6 +12,16 @@ of <https://rfc.zeromq.org/spec/32/> as possible.
     >>> z85dec(b'HelloWorld').hex()
     '864fd26fb559f75b'
 
+Note
+----
+
+Python provides
+[`base64.z85encode`](https://docs.python.org/3/library/base64.html#base64.z85encode)
+and
+[`base64.z85decode`](https://docs.python.org/3/library/base64.html#base64.z85decode).
+This package exists so implementors of Z85 en-/decoders can more easily
+access the reference implementation to check their implementations against.
+
 
 Legal
 -----
