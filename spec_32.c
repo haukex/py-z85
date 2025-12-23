@@ -3,9 +3,10 @@
 //
 //  This implementation provides a Z85 codec as an easy-to-reuse C class
 //  designed to be easy to port into other languages.
-
 //  --------------------------------------------------------------------------
 //  Copyright (c) 2010-2013 iMatix Corporation and Contributors
+//
+//  (With modifications by Hauke Daempfling <haukex@zero-g.net>, Dec 2025)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
 //  copy of this software and associated documentation files (the "Software"),
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 //  Maps base 256 to base 85
 static char encoder [85 + 1] = {
@@ -71,6 +73,9 @@ char *Z85_encode (unsigned char *data, size_t size) {
 
     size_t encoded_size = size * 5 / 4;
     char *encoded = malloc (encoded_size + 1);
+    if (encoded==NULL)
+        return NULL;
+
     unsigned int char_nbr = 0;
     unsigned int byte_nbr = 0;
     uint32_t value = 0;
@@ -104,6 +109,8 @@ unsigned char *Z85_decode (char *string) {
 
     size_t decoded_size = strlen (string) * 4 / 5;
     unsigned char *decoded = malloc (decoded_size);
+    if (decoded==NULL)
+        return NULL;
 
     unsigned int byte_nbr = 0;
     unsigned int char_nbr = 0;

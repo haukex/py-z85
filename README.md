@@ -8,7 +8,9 @@ Legal
 
 The file `spec_32.c` is derived from
 <https://github.com/zeromq/rfc/blob/8416923d/src/spec_32.c>
-and contains the following legal information:
+and contains the following legal information.
+
+The code has since been modified by Hauke Daempfling (haukex@zero-g.net).
 
 Copyright (c) 2010-2013 iMatix Corporation and Contributors
 
